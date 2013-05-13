@@ -13,6 +13,11 @@ setup(
     packages=['django_ldap_server'],
     long_description=open('README.rst').read(),
     install_requires = [
+        'gevent==dev',
+        'django>=1.4',
         'pyasn1-modules==0.0.5'
+    ],
+    dependency_links= [
+        'https://github.com/surfly/gevent/tarball/master#egg=gevent'
     ]
 )
