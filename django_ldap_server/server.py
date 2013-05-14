@@ -1,78 +1,94 @@
 import logging
+
+from gevent.server import StreamServer
+
 from pyasn1.error import PyAsn1Error
+from pyasn1_modules.rfc2251 import decoder, encoder, LDAPMessage, BindResponse
 
 
 logging.basicConfig(level=logging.INFO)
 
-from gevent.server import StreamServer
 
-from pyasn1_modules.rfc2251 import decoder, encoder, LDAPMessage, BindResponse, BindRequest
-
-
-def valid_authentication(message):
+class LDAPServer(object):
     """
-    :rtype: (resultCode, errorMessage)
+    Class handling the ldap protocol.
     """
-    bind_request = message.getComponentByName('protocolOp')[0]
-    if not isinstance(bind_request, BindRequest):
-        return 2, 'You shall send a BindRequest first'
+    logger = logging.getLogger('django_ldap_server')
 
-    name = bind_request.getComponentByName('name')
-    passwd = bind_request.getComponentByName('authentication').getComponentByPosition(0)
+    def __call__(self, socket, address):
+        """
+        New incoming connection
+        """
+        self.socket = socket
+        self.address = address
 
-    # TODO: check id and authozization based on ldap
-    return 0, ''
+        # while socket is open, read ldap messages from it and dispatch them to handlers
+        while not self.socket.closed:
+            self.dispatch_msg(self.recv_msg())
+
+    def recv_msg(self):
+        """
+        reads a ldap message from socket and return it - else None
+        """
+        buffer = ''
+        while True:
+            data = self.socket.recv(2 ** 10)
+            if not data:
+                return None
+            buffer += data
+
+            try:
+                msg, _ = decoder.decode(buffer, asn1Spec=LDAPMessage())
+                return msg
+            except PyAsn1Error:
+                continue
+
+    def __answer_msg(self, last_received_msg):
+        """
+        Helper to simply answer to a ldap request reusing the last received message.
+        """
+        def wrapped(operation):
+            self.socket.send(encoder.encode(
+                last_received_msg.setComponentByName('protocolOp', operation)
+            ))
+        return wrapped
 
 
-def recv_ldap_message(socket):
-    """
-    reads a ldap message from socket and return it - else None
-    """
-    buffer = ''
-    while True:
-        data = socket.recv(2 ** 10)
-        if not data:
-            return None
-        buffer += data
+    def dispatch_msg(self, msg):
+        """
+        Extracts the ldaop operation from ldap message and dispatches it to it's corresponding handler method
+        """
+        operation = msg.getComponentByName('protocolOp').getComponent()
+        handler_name = 'handle_%s' % operation.__class__.__name__.lower()
+        if hasattr(self, handler_name):
+            getattr(self, handler_name)(operation, self.__answer_msg(msg))
+        else:
+            self.logger.warn('Operation not handled: %s', operation)
 
-        try:
-            msg, _ = decoder.decode(buffer, asn1Spec=LDAPMessage())
-            return msg
-        except PyAsn1Error:
-            continue
+    def handle_bindrequest(self, operation, answer):
+        """
+        Handles a BindRequest. Used for authentication.
+        """
+        name = operation.getComponentByName('name')
+        passwd = operation.getComponentByName('authentication').getComponentByPosition(0)
 
+        # TODO: do the authentication here
+        code, error_message = 0, ''
 
-def handle(socket, address):
-    print 'new connection!'
-
-    bind_request = recv_ldap_message(socket)
-    code, error_message = valid_authentication(bind_request)
-
-    bound = code == 0
-
-    socket.send(encoder.encode(
-        bind_request.setComponentByName(
-            'protocolOp',
+        answer(
             BindResponse()
             .setComponentByName('resultCode', code)
             .setComponentByName('matchedDN', '')
             .setComponentByName('errorMessage', error_message)
         )
-    ))
 
-
-
-
-    next = recv_ldap_message(socket)
-
-    print next.prettyPrint()
-
+    def handle_searchrequest(self, operation, answer):
+        print operation
 
 
 def main():
     print "Starting"
-    server = StreamServer(('127.0.0.1', 3389), handle)  # creates a new server
-    server.serve_forever()
+    StreamServer(('127.0.0.1', 3389), LDAPServer()).serve_forever()
 
 
 if __name__ == '__main__':
