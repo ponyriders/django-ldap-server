@@ -30,15 +30,15 @@ class LDAPServer(object):
         """
         reads a ldap message from socket and return it - else None
         """
-        buffer = ''
+        recv_buffer = ''
         while True:
             data = self.socket.recv(2 ** 10)
             if not data:
                 return None
-            buffer += data
+            recv_buffer += data
 
             try:
-                msg, _ = decoder.decode(buffer, asn1Spec=LDAPMessage())
+                msg, _ = decoder.decode(recv_buffer, asn1Spec=LDAPMessage())
                 return msg
             except PyAsn1Error:
                 continue
