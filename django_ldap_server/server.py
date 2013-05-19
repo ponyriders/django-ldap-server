@@ -1,5 +1,7 @@
 import logging
 
+from django_ldap_server import app_settings
+
 from gevent.server import StreamServer
 
 from pyasn1.error import PyAsn1Error
@@ -39,6 +41,7 @@ class LDAPServer(object):
 
             try:
                 msg, _ = decoder.decode(recv_buffer, asn1Spec=LDAPMessage())
+                print recv_buffer
                 return msg
             except PyAsn1Error:
                 continue
@@ -88,7 +91,7 @@ class LDAPServer(object):
 
 def main():
     print "Starting"
-    StreamServer(('127.0.0.1', 3389), LDAPServer()).serve_forever()
+    StreamServer((app_settings.BIND_IP, app_settings.BIND_PORT), LDAPServer()).serve_forever()
 
 
 if __name__ == '__main__':
