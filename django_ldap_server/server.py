@@ -41,7 +41,6 @@ class LDAPServer(object):
 
             try:
                 msg, _ = decoder.decode(recv_buffer, asn1Spec=LDAPMessage())
-                print recv_buffer
                 return msg
             except PyAsn1Error:
                 continue
