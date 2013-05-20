@@ -22,23 +22,67 @@ class BindUnbindTest(unittest.TestCase, ServerMixin):
 
     def test_anonymous_allowed(self):
         """
-        This tests if server works correctly if anonymous search is allowed
+        This tests if server works correctly if ANONYMOUS_SEARCH_ALLOWED is 
+        True
+        
+        Test procedure:
+            - explicit enable ANONYMOUS_SEARCH_ALLOWED
+            - send a search request
+            - validate response contains result
+            - reset ANONYMOUS_SEARCH_ALLOWED
         """
         pass
 
     def test_anonymous_disallowed(self):
         """
-        This tests if server blocks correctly if anonymous search is not allowed
+        This tests if server blocks correctly if ANONYMOUS_SEARCH_ALLOWED is
+        False
+        
+        Test procedure:
+            - explicit disable ANONYMOUS_SEARCH_ALLOWED
+            - send a search request
+            - validate response contains error message
+            - reset ANONYMOUS_SEARCH_ALLOWED
         """
         pass
 
     def test_with_account_anonymous_allowed(self):
         """
-        This tests if server works correctly if anonymous search is allowed.
-        As this setting should not interfer with bind requests providing
-        credentials, simply test_with_account_anonymous_disallowed is called 
+        This tests if server works correctly if ANONYMOUS_SEARCH_ALLOWED is 
+        True. As this setting should not interfer with bind requests providing
+        credentials, simply __test_with_account is called
+        
+        Test procedure:
+            - explicit enable ANONYMOUS_SEARCH_ALLOWED
+            - call helper function
+            - reset ANONYMOUS_SEARCH_ALLOWED
         """
-        self.test_anonymous_disallowed()
+        self.__test_with_account()
 
     def test_with_account_anonymous_disallowed(self):
+        """
+        This tests if server works correctly if ANONYMOUS_SEARCH_ALLOWED is 
+        False. As this setting should not interfer with bind requests providing
+        credentials, simply __test_with_account is called
+        
+        Test procedure:
+            - explicit disable ANONYMOUS_SEARCH_ALLOWED
+            - call helper function
+            - reset ANONYMOUS_SEARCH_ALLOWED
+        """
+        self.__test_with_account()
+
+    def __test_with_account(self):
+        """
+        Helper function for testing bind requests with credentials as this
+        request should behave indepently from ANONYMOUS_SEARCH_ALLOWED
+        
+        Test procedure:
+            - send bind request
+            - validate response contains success code
+            - send search request
+            - validate response contains result
+            - send unbind request
+            - validate response contains success code
+        """
         pass
