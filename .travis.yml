@@ -8,7 +8,7 @@ install:
   - pip install -r requirements_test.txt
 script:
   - flake8 django_ldap_server --ignore=E501,E128 --exclude=migrations
-  - coverage run --branch --source=price_monitor `which django-admin.py` test --settings=django_ldap_server.test_settings django_ldap_server
+  - coverage run --branch --source=django_ldap_server `which django-admin.py` test --settings=django_ldap_server.test_settings django_ldap_server
   - coverage report --omit="django_ldap_server/migrations/*"
 notifications:
   email: false
