@@ -2,3 +2,4 @@
 .project
 .pydevproject
 *.pyc
+django_ldap_server.egg-info
