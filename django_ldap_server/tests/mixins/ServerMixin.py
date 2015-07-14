@@ -3,6 +3,7 @@ from django_ldap_server.server import LDAPServer
 
 from gevent.server import StreamServer
 
+
 class ServerMixin(object):
     """
     Helper class for tests.

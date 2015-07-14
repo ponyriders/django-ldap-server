@@ -55,7 +55,6 @@ class LDAPServer(object):
             ))
         return wrapped
 
-
     def dispatch_msg(self, msg):
         """
         Extracts the ldaop operation from ldap message and dispatches it to it's corresponding handler method
@@ -85,11 +84,11 @@ class LDAPServer(object):
         )
 
     def handle_searchrequest(self, operation, answer):
-        print operation
+        print(operation)
 
 
 def main():
-    print "Starting"
+    print('Starting')
     StreamServer((app_settings.BIND_IP, app_settings.BIND_PORT), LDAPServer()).serve_forever()
 
 
