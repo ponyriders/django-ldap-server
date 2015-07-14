@@ -14,7 +14,7 @@ setup(
     long_description=open('README.rst').read(),
     install_requires = [
         'gevent>=1.1a1',
-        'django>=1.8',
+        'Django==1.8',
         'pyasn1-modules>=0.1.8'
     ],
 )
