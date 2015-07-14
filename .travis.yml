@@ -1,0 +1,17 @@
+language: python
+python:
+  - "3.3"
+  - "3.4"
+install:
+  - export CPPFLAGS="-O0"
+  - pip install -e .
+  - pip install -r requirements_test.txt
+script:
+  - flake8 django_ldap_server --ignore=E501,E128 --exclude=migrations
+  - coverage run --branch --source=price_monitor `which django-admin.py` test --settings=django_ldap_server.test_settings django_ldap_server
+  - coverage report --omit="django_ldap_server/migrations/*"
+notifications:
+  email: false
+cache: apt
+after_success:
+  coveralls
