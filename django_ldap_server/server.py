@@ -70,8 +70,8 @@ class LDAPServer(object):
         """
         Handles a BindRequest. Used for authentication.
         """
-        name = operation.getComponentByName('name')
-        passwd = operation.getComponentByName('authentication').getComponentByPosition(0)
+        #name = operation.getComponentByName('name')
+        #passwd = operation.getComponentByName('authentication').getComponentByPosition(0)
 
         # TODO: do the authentication here
         code, error_message = 0, ''
