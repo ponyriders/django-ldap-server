@@ -31,5 +31,5 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'price_monitor',
+    'django_ldap_server',
 )
